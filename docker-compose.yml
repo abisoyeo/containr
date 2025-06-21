@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my_express_app_dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount your local server code into the container's working directory.
+      - ./server:/app
+      # Mount node_modules as a separate volume to prevent host's node_modules interfering
+      # and to ensure nodemon and other tools can access their dependencies inside container.
+      - /app/node_modules
+    environment:
+      # Connects to your host machine's MongoDB instance
+      MONGO_URI: mongodb://host.docker.internal:27017/TodoDb
+      PORT: 3000
+    command: npm run dev # Runs the 'dev' script defined in server/package.json
