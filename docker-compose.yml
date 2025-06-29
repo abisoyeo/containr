@@ -9,6 +9,8 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
+    environment:
+      - MONGO_URI=mongodb://host.docker.internal:27017/TodoDb
     env_file:
       - ./server/.env
     command: npm run dev

@@ -1,41 +1,48 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
+const cors = require("cors");
+const logger = require("morgan");
+const session = require("express-session");
 const { auth } = require("express-openid-connect");
-const { requiresAuth } = require("express-openid-connect");
+
+// Import configurations
+const connectDB = require("./config/database");
+const sessionConfig = require("./config/session");
+const corsConfig = require("./config/cors");
+const auth0Config = require("./config/auth0");
+const syncUserMiddleware = require("./middleware/syncUser");
+
+// Import routes
 const todoRoutes = require("./routes/todo");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-app.use(express.json());
-
 const PORT = process.env.PORT || 3000;
-const DB_URI = process.env.MONGO_URI || "mongodb://localhost:27017/TodoDb";
 
-// move to docker env?
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: "a long, randomly-generated string stored in env",
-  baseURL: "http://localhost:3000",
-  clientID: "NLteCSvqvj4hIzy69Vb6V8woXdrQW3aV",
-  issuerBaseURL: "https://dev-jswgsvvssxkp0m7o.us.auth0.com",
+// Middleware
+app.use(logger("dev"));
+app.use(cors(corsConfig));
+app.use(session(sessionConfig));
+app.use(express.json());
+app.use(auth(auth0Config));
+
+app.use(syncUserMiddleware);
+
+// Routes
+app.use("/api", authRoutes);
+app.use("/api", todoRoutes);
+
+// Start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
 };
 
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
-
-app.use("/", todoRoutes);
-app.use("/", authRoutes);
-
-mongoose
-  .connect(DB_URI)
-  .then(() => {
-    console.log("Db connected");
-    app.listen(PORT, () => {
-      console.log(`App running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.log(error.message);
-  });
+startServer();
