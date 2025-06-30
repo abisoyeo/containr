@@ -43,8 +43,9 @@ router.put("/todos/:id", async (req, res) => {
       req.body
     );
 
-    if (!todo)
-      {return res.status(404).json({ msg: `Todo with id ${id} not found` });}
+    if (!todo) {
+      return res.status(404).json({ msg: `Todo with id ${id} not found` });
+    }
 
     const updatedTodo = await TodoModel.findById(id);
     res.json(updatedTodo);
@@ -62,8 +63,9 @@ router.delete("/todos/:id", async (req, res) => {
       user: req.dbUser._id,
     });
 
-    if (!todo)
-      {return res.status(404).json({ msg: `Todo with id ${id} not found` });}
+    if (!todo) {
+      return res.status(404).json({ msg: `Todo with id ${id} not found` });
+    }
 
     res.json({ msg: "Deleted successfully", todo });
   } catch (error) {

@@ -8,23 +8,23 @@ const client = redis.createClient({
 });
 // Handle Redis client connection errors
 client.on("error", (err) => {
-  console.error("Redis Client Error:", err); // <--- This will log connection errors
+  console.error("Redis Client Error:", err);
 });
 
 // Connect to Redis
 client
   .connect()
   .then(() => {
-    console.log("Redis client connected successfully!"); // <--- This will log success
+    console.log("Redis client connected successfully!");
   })
   .catch((err) => {
-    console.error("Failed to connect to Redis client:", err); // <--- This will log connection failures
+    console.error("Failed to connect to Redis client:", err);
   });
 const sessionConfig = {
   store: new RedisStore({ client: client }),
   secret: process.env.SESSION_SECRET || "a_default_secret_for_dev",
   resave: false,
-  // name: "sessionId", // chnage name of cookie
+  // name: "sessionId", // change name of cookie
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === "production",

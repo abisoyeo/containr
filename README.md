@@ -4,12 +4,13 @@ Containr is a full-stack todo application built with Node.js, Express, and React
 
 ## Features
 
-- **Secure Authentication**: Auth0 integration with session management
+- **Secure Authentication**: Auth0 integration with Redis-based session management
 - **User Management**: Custom user models with profile preferences
 - **Todo Management**: Full CRUD operations with user-specific data isolation
 - **Modern Frontend**: React with protected routes and context-based authentication
 - **Containerized Deployment**: Docker setup for development and production
 - **RESTful API**: Clean, documented endpoints with proper error handling
+- **CI/CD Pipeline**: GitHub Actions for automated testing and linting
 
 ## Technology Stack
 
@@ -18,6 +19,7 @@ Containr is a full-stack todo application built with Node.js, Express, and React
 - **Node.js** - Runtime environment
 - **Express** - Web framework
 - **MongoDB** - Database with Mongoose ODM
+- **Redis** - Session storage
 - **Auth0** - Authentication provider (express-openid-connect)
 - **Docker** - Containerization
 
@@ -87,14 +89,10 @@ AUTH0_BASE_URL=http://localhost:3000
 AUTH0_CLIENT_ID=your-auth0-client-id
 AUTH0_ISSUER_BASE_URL=https://your-domain.auth0.com
 MONGODB_URI=mongodb://localhost:27017/containr
+REDIS_HOST=redis://localhost
+REDIS_PORT=6379
 CLIENT_URL=http://localhost:5173
 SESSION_SECRET=your-session-secret
-```
-
-**Client `.env`:**
-
-```env
-VITE_API_URL=http://localhost:3000/api
 ```
 
 ### 3. Run with Docker
@@ -141,7 +139,7 @@ All todo endpoints require authentication and automatically filter data by the a
 
 ### Authentication Flow
 
-- Auth0 handles user authentication with secure session management
+- Auth0 handles user authentication with Redis-based session management
 - Custom middleware (`syncUser.js`) synchronizes Auth0 users with the local database
 - Frontend uses `AuthContext` to manage authentication state
 - Protected routes automatically redirect unauthenticated users
@@ -150,13 +148,19 @@ All todo endpoints require authentication and automatically filter data by the a
 
 - All todo operations are scoped to the authenticated user
 - Database queries include user filtering to prevent data leakage
-- Session-based authentication with secure cookie handling
+- Session-based authentication with Redis storage and secure cookie handling
 
 ### Frontend Architecture
 
 - Context API provides global authentication state
 - Protected routes wrap components requiring authentication
 - API calls include proper error handling and loading states
+
+### Testing & Quality Assurance
+
+- GitHub Actions workflow for automated linting and code quality checks
+- Test suite structure ready for implementation (tests not yet written)
+- ESLint configuration for consistent code style
 
 ## License
 
