@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../components/AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { LoginButton } from "../components/LoginButton";
 

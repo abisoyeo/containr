@@ -1,4 +1,6 @@
 {
+    "name": "containr",
+    "version": "1.0.0",
     "scripts": {
         "build": "npm --prefix client install && npm --prefix client run build && npm --prefix server install",
         "start": "npm --prefix server run start",
@@ -20,7 +22,11 @@
         "lint:server:fix": "eslint server/ --fix",
         "lint:check": "npm run lint:client:check && npm run lint:server:check",
         "lint:client:check": "eslint client/ --max-warnings 0",
-        "lint:server:check": "eslint server/ --max-warnings 0"
+        "lint:server:check": "eslint server/ --max-warnings 0",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "format:server": "prettier --write server/",
+        "format:client": "prettier --write client/"
     },
     "devDependencies": {
         "concurrently": "^7.6.0",

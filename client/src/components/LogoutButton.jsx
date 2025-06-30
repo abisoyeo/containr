@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
 export const LogoutButton = () => {
-  const { handleLogout, isLoading, userInfo } = useContext(AuthContext);
+  const { handleLogout } = useContext(AuthContext);
 
   return (
     <button className="logout" onClick={handleLogout}>
