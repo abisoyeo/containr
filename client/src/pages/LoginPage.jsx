@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../components/AuthContext";
 import { Navigate } from "react-router-dom";
-import { useEffect } from "react";
 import { LoginButton } from "../components/LoginButton";
 
 export default function LoginPage() {

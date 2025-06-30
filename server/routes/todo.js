@@ -3,7 +3,6 @@ const router = express.Router();
 const TodoModel = require("../Models/todo");
 const { requiresAuth } = require("express-openid-connect");
 const syncUserMiddleware = require("../middleware/syncUser");
-const user = require("../Models/user");
 
 // Apply middleware to all todo routes
 router.use(requiresAuth(), syncUserMiddleware);
