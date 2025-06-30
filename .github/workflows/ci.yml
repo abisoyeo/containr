@@ -1,114 +1,98 @@
-name: Super-Linter
+name: CI/CD Pipeline
 
-on: push
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  super-lint:
-    name: Lint code base
+  lint-and-format:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# name: CI/CD Pipeline
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
 
-# on:
-#   push:
-#     branches: [main, develop]
-#   pull_request:
-#     branches: [main]
+      - name: Install root dependencies
+        run: npm ci
 
-# jobs:
-#   lint-and-format:
-#     runs-on: ubuntu-latest
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm ci
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
+      - name: Install client dependencies
+        run: |
+          cd client
+          npm ci
 
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: "18"
-#           cache: "npm"
+      - name: Check Prettier formatting
+        run: |
+          echo "Checking code formatting..."
+          npm run format:check
 
-#       - name: Install root dependencies
-#         run: npm ci
+      - name: Run ESLint on server
+        run: |
+          echo "Linting server code..."
+          cd server
+          npm run lint
 
-#       - name: Install server dependencies
-#         run: |
-#           cd server
-#           npm ci
+      - name: Run ESLint on client (if applicable)
+        run: |
+          echo "Linting client code..."
+          cd client
+          npm run lint || echo "No lint script in client"
 
-#       - name: Install client dependencies
-#         run: |
-#           cd client
-#           npm ci
+      - name: Run tests (server)
+        run: |
+          cd server
+          npm test || echo "No tests configured"
 
-#       - name: Check Prettier formatting
-#         run: |
-#           echo "Checking code formatting..."
-#           npm run format:check
+      - name: Run tests (client)
+        run: |
+          cd client
+          npm test || echo "No tests configured"
 
-#       - name: Run ESLint on server
-#         run: |
-#           echo "Linting server code..."
-#           cd server
-#           npm run lint
+  # Optional: Auto-fix formatting on push to develop branch
+  auto-format:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
 
-#       - name: Run ESLint on client (if applicable)
-#         run: |
-#           echo "Linting client code..."
-#           cd client
-#           npm run lint || echo "No lint script in client"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-#       - name: Run tests (server)
-#         run: |
-#           cd server
-#           npm test || echo "No tests configured"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
 
-#       - name: Run tests (client)
-#         run: |
-#           cd client
-#           npm test || echo "No tests configured"
+      - name: Install dependencies
+        run: npm ci
 
-#   # Optional: Auto-fix formatting on push to develop branch
-#   auto-format:
-#     runs-on: ubuntu-latest
-#     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+      - name: Run Prettier
+        run: npm run format
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
-#         with:
-#           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff --staged --quiet || git commit -m "Auto-format code with Prettier [skip ci]"
+          git push
 
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: "18"
-#           cache: "npm"
+  # Optional: Build and deploy
 
-#       - name: Install dependencies
-#         run: npm ci
-
-#       - name: Run Prettier
-#         run: npm run format
-
-#       - name: Commit changes
-#         run: |
-#           git config --local user.email "action@github.com"
-#           git config --local user.name "GitHub Action"
-#           git add .
-#           git diff --staged --quiet || git commit -m "Auto-format code with Prettier [skip ci]"
-#           git push
-
-#   # Optional: Build and deploy
 #   build:
 #     runs-on: ubuntu-latest
 #     needs: lint-and-format
